@@ -28,7 +28,7 @@ namespace SkiaSharp.Views.Forms
 				view.MouseDown -= OnMousePressed;
 				view.MouseMove -= OnMouseMoved;
 				view.MouseUp -= OnMouseReleased;
-
+				view.MouseWheel -= OnMouseWheel;
 				if (enableTouchEvents)
 				{
 					// mouse
@@ -37,6 +37,7 @@ namespace SkiaSharp.Views.Forms
 					view.MouseDown += OnMousePressed;
 					view.MouseMove += OnMouseMoved;
 					view.MouseUp += OnMouseReleased;
+					view.MouseWheel += OnMouseWheel;
 				}
 			}
 		}
@@ -90,6 +91,11 @@ namespace SkiaSharp.Views.Forms
 			}
 		}
 
+		private void OnMouseWheel(object sender, MouseWheelEventArgs e)
+		{
+			e.Handled = CommonHandler(sender, SKTouchAction.WheelChanged, e);
+		}
+
 		// processing
 
 		private bool CommonHandler(object sender, SKTouchAction touchActionType, InputEventArgs evt)
@@ -106,8 +112,9 @@ namespace SkiaSharp.Views.Forms
 			var windowsPoint = GetPosition(evt, view);
 			var skPoint = scalePixels(windowsPoint.X, windowsPoint.Y);
 			var inContact = GetContact(evt);
+			var wheelDelta = evt is MouseWheelEventArgs wheelEvt ? wheelEvt.Delta : 0;
 
-			var args = new SKTouchEventArgs(id, action, mouse, device, skPoint, inContact);
+			var args = new SKTouchEventArgs(id, action, mouse, device, skPoint, inContact, wheelDelta);
 			onTouchAction(args);
 			return args.Handled;
 		}
